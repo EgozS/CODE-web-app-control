@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+    <title>midi traffic</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+    
+    function addTraffic(msg) {
+        var trafficContainer = document.getElementById('traffic-container');
+        var traffic = document.getElementsByClassName('traffic-box');
+        var newTraffic = document.createElement('div');
+        newTraffic.classList.add('traffic');
+        traffic[0].appendChild(newTraffic);
+        var traffic = document.getElementsByClassName('traffic');
+        // make a p element for each traffic item
+        var newPTraffic = document.createElement('p');
+        newPTraffic.classList.add('traffic-item');
+
+        //parse the msg, get all the keys and values and add them to the p element
+        var keys = Object.keys(msg);
+        var values = Object.values(msg);
+        var trafficText = '';
+        for (var i = 0; i < keys.length; i++) {
+            trafficText += keys[i] + ': ' + values[i] + ' ';
+        }
+        newPTraffic.innerText = trafficText;
+        traffic[traffic.length - 1].appendChild(newPTraffic);
+        trafficContainer.scrollTop = trafficContainer.scrollHeight; // Scroll to the bottom
+    }
+
+    var socket = io();
+    var traffic = document.getElementById('traffic'); 
+    socket.on('traffic', function(msg){
+        console.log(msg);
+        addTraffic(msg);
+    });
+    </script>
+</head>
+<body>
+    <h1>traffic</h1>
+    <a href="/">home</a>
+    <div id="traffic-container" class="traffic-box">
+        <h2 id="count"></h2>
+        <div class="traffic-box">
+        </div>
+    </div>
+</body>
+</html>
