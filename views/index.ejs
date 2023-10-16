@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code test</title>
+</head>
+<body>
+    <h1>Code test</h1>
+    <form action="/test/vol" method="post">
+        <label for="vol" id="vol-text">Volume</label>
+        <br>
+        <input type="range" name = "vol">
+        <input type="submit" value="Submit">
+    </form>
+    <br>
+    <script>
+        const slider = document.getElementsByName('vol')[0];
+        const txt = document.getElementById('vol-text');
+        slider.addEventListener('input', (e) => {
+            txt.innerText = `Volume: ${e.target.value}%`;
+        });
+    </script>
+</body>
+</html>
