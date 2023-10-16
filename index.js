@@ -1,7 +1,10 @@
 const express = require('express');
 const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 const bodyParser = require('body-parser');
 const midi = require('easymidi');
+
 const port = 8080;
 
 const inputs = midi.getInputs();
@@ -12,37 +15,51 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.set('views', __dirname + '/views');
+app.use(express.static(__dirname + '/public'));
+
 
 
 // Send a control change message
-function sendControlChange(controlNumber, controlValue) 
+function sendControlChange(controlNumber, controlValue, type = 'cc') 
 {
-    output.send('cc', {controller: controlNumber, value: controlValue, channel: 0});
+    if(type == 'cc')
+    {
+        output.send(type, {controller: controlNumber, value: controlValue, channel: 0});
+    }
+    else if(type == 'program')
+    {
+        output.send(type, {number: controlValue, channel: 0});
+    }
+    
 }
 
 // Configure a callback
 input.on('message', (msg) => {
     console.log(msg);
+    io.emit('traffic', msg);
 });
-
 
 //express routes
 app.get('/', (req, res) => {
     res.render('index');
 });
 
-app.post('/test/vol', (req, res) => {
-    let vol = req.body.vol;
-
-    const controlNumber = 74; // control index
-    const controlValue = vol; // control value
-
-    // Send a control change message
-    sendControlChange(controlNumber, controlValue);
-    res.send('Volume set to ' + vol);
+app.get('/traffic', (req, res) => {
+    res.render('traffic');
 });
 
+//client socket is senting 'vol' to server
+io.on('connection', (socket) => {
+    socket.on('vol', (msg) => {
+        console.log("vol set from slider: " + msg);
+        sendControlChange(74, msg);
+    });
+    socket.on('preset', (msg) => {
+        console.log("preset set from socket: " + msg);
+        sendControlChange(0,msg,'program');
+    });
+});
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
