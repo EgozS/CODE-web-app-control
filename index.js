@@ -50,6 +50,22 @@ app.get('/traffic', (req, res) => {
 
 //client socket is senting 'vol' to server
 io.on('connection', (socket) => {
+    socket.on('gain', (msg) => {
+        console.log("gain set from slider: " + msg);
+        sendControlChange(70, msg);
+    });
+    socket.on('bass', (msg) => {
+        console.log("bass set from slider: " + msg);
+        sendControlChange(71, msg);
+    });
+    socket.on('mid', (msg) => {
+        console.log("mid set from slider: " + msg);
+        sendControlChange(72, msg);
+    });
+    socket.on('treb', (msg) => {
+        console.log("treb set from slider: " + msg);
+        sendControlChange(73, msg);
+    });
     socket.on('vol', (msg) => {
         console.log("vol set from slider: " + msg);
         sendControlChange(74, msg);

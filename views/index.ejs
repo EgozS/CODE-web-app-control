@@ -3,22 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
     <title>Code test</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>var socket = io();</script>
+    <script src="https://g200kg.github.io/input-knobs/input-knobs.js"></script>
 </head>
 <body>
     <h1>Code test</h1>
-    <form action="/test/vol" method="post">
-        <label for="vol" id="vol-text">Volume</label>
-        <br>
-        <input type="range" name = "vol">
-        <input type="submit" value="Submit">
-    </form>
+    <div class="controls-container">
+        <div class="knob-container">
+            <h3>Knobs</h3>
+            <br>
+            <label for="gain" id="gain-text">Gain</label>
+            <br>
+            <input type="range" name = "gain" class="input-knob">
+            <br>
+            <label for="bass" id="bass-text">Bass</label>
+            <br>
+            <input type="range" name = "bass" class="input-knob">
+            <br>
+            <label for="middle" id="middle-text">Middle</label>
+            <br>
+            <input type="range" name = "middle" class="input-knob">
+            <br>
+            <label for="treble" id="treble-text">Treble</label>
+            <br>
+            <input type="range" name = "treble" class="input-knob">
+            <br>
+            <label for="vol" id="vol-text">Volume</label>
+            <br>
+            <input type="range" name = "vol" class="input-knob knob-rotate-animation">
+        </div>
+                
+        <div class="knob-container preset-container">
+            <label for="preset">Preset</label>
+            <br>
+            <input type="number" id="preset" name="preset" value="0">
+        </div>
+
+    </div>
+    <a href="/traffic">view traffic</a>
     <br>
     <script>
-        const slider = document.getElementsByName('vol')[0];
-        const txt = document.getElementById('vol-text');
-        slider.addEventListener('input', (e) => {
-            txt.innerText = `Volume: ${e.target.value}%`;
+        //set txt
+        const gainSlider = document.getElementsByName('gain')[0];
+        const gainTxt = document.getElementById('gain-text')
+        const bassSlider = document.getElementsByName('bass')[0];
+        const bassTxt = document.getElementById('bass-text')
+        const middleSlider = document.getElementsByName('middle')[0];
+        const middleTxt = document.getElementById('middle-text')
+        const trebleSlider = document.getElementsByName('treble')[0];
+        const trebleTxt = document.getElementById('treble-text')
+        const volumeSlider = document.getElementsByName('vol')[0];
+        const volumeTxt = document.getElementById('vol-text');
+        const presetInput = document.getElementsByName('preset')[0];
+
+        gainTxt.innerText = `Gain: ${gainSlider.value}%`;
+        bassTxt.innerText = `Bass: ${bassSlider.value}%`;
+        middleTxt.innerText = `Middle: ${middleSlider.value}%`;
+        trebleTxt.innerText = `Treble: ${trebleSlider.value}%`;
+        volumeTxt.innerText = `Volume: ${volumeSlider.value}%`;
+    </script>
+    <script>
+        //cookie set txt
+        const cookieGain = document.cookie.split(';').find(c => c.trim().startsWith('gain='));
+        const cookieBass = document.cookie.split(';').find(c => c.trim().startsWith('bass='));
+        const cookieMiddle = document.cookie.split(';').find(c => c.trim().startsWith('middle='));
+        const cookieTreble = document.cookie.split(';').find(c => c.trim().startsWith('treble='));
+        const cookieVol = document.cookie.split(';').find(c => c.trim().startsWith('volume='));
+        const cookiePreset = document.cookie.split(';').find(c => c.trim().startsWith('preset='));
+        
+        if (cookieGain) {
+            const value = cookieGain.split('=')[1];
+            gainSlider.value = value;
+            gainTxt.innerText = `Gain: ${value}%`;
+        }
+        if (cookieBass) {
+            const value = cookieBass.split('=')[1];
+            bassSlider.value = value;
+            bassTxt.innerText = `Bass: ${value}%`;
+        }
+        if (cookieMiddle) {
+            const value = cookieMiddle.split('=')[1];
+            middleSlider.value = value;
+           middleTxt.innerText = `Middle: ${value}%`;
+        }
+        if (cookieTreble) {
+            const value = cookieTreble.split('=')[1];
+            trebleSlider.value = value;
+            trebleTxt.innerText = `Treble: ${value}%`;
+        }
+        if (cookieVol) {
+            const value = cookieVol.split('=')[1];
+            volumeSlider.value = value;
+            volumeTxt.innerText = `Volume: ${value}%`;
+        }
+        if (cookiePreset) {
+            const value = cookiePreset.split('=')[1];
+            presetInput.value = value;
+        }
+    </script>
+    <script>
+        //event listeners
+        gainSlider.addEventListener('input', (e) => {
+            document.cookie = `gain=${e.target.value}`;
+            socket.emit('gain', e.target.value);
+            gainTxt.innerText = `Gain: ${e.target.value}%`;
+        });
+        bassSlider.addEventListener('input', (e) => {
+            document.cookie = `bass=${e.target.value}`;
+            socket.emit('bass', e.target.value);
+            bassTxt.innerText = `Bass: ${e.target.value}%`;
+        });
+        middleSlider.addEventListener('input', (e) => {
+            document.cookie = `middle=${e.target.value}`;
+            socket.emit('mid', e.target.value);
+            middleTxt.innerText = `Middle: ${e.target.value}%`;
+        });
+        trebleSlider.addEventListener('input', (e) => {
+            document.cookie = `treble=${e.target.value}`;
+            socket.emit('treb', e.target.value);
+            trebleTxt.innerText = `Treble: ${e.target.value}%`;
+        });
+        volumeSlider.addEventListener('input', (e) => {
+            document.cookie = `volume=${e.target.value}`;
+            socket.emit('vol', e.target.value);
+            volumeTxt.innerText = `Volume: ${e.target.value}%`;
+        });
+
+        // Add an event listener to detect value changes
+        presetInput.addEventListener('change', function() {
+            const maxValue = 99;
+            const minValue = 0;
+            let value = parseInt(presetInput.value);
+
+            if (isNaN(value) || value < minValue) {
+                // If the value is not a number or less than the minimum, set it to the minimum
+                presetInput.value = maxValue;
+            } else if (value > maxValue) {
+                // If the value is greater than the maximum, reset it to the minimum
+                presetInput.value = minValue;
+            }
+            document.cookie = `preset=${presetInput.value}`;
+            socket.emit('preset', presetInput.value);
+        });
+    </script>
+    <script>
+        function updateKnob(knob, value)
+        {
+            knob.value = value;
+        }
+
+        function parseBytes(bytes)
+        {
+            const gain = bytes[29];
+            const bass = bytes[30];
+            const mid = bytes[31];
+            const treb = bytes[32];
+            const vol = bytes[33];
+            
+            updateKnob(gainSlider, gain);
+            gainTxt.innerText = `Gain: ${gain}%`;
+
+            updateKnob(bassSlider, bass);
+            bassTxt.innerText = `Bass: ${bass}%`;
+
+            updateKnob(middleSlider, mid);
+            middleTxt.innerText = `Middle: ${mid}%`;
+
+            updateKnob(trebleSlider, treb);
+            trebleTxt.innerText = `Treble: ${treb}%`;
+
+            updateKnob(volumeSlider, vol);
+            volumeTxt.innerText = `Volume: ${vol}%`;
+        }
+        socket.on('traffic', function(msg){
+            if(msg.controller == 70) //gain
+            {
+                updateKnob(gainSlider, msg.value);
+                gainTxt.innerText = `Gain: ${msg.value}%`;
+            }
+            if(msg.controller == 71) //bass
+            {
+                updateKnob(bassSlider, msg.value);
+                bassTxt.innerText = `Bass: ${msg.value}%`;
+            }
+            if(msg.controller == 72) //mid
+            {
+                updateKnob(middleSlider, msg.value);
+                middleTxt.innerText = `Middle: ${msg.value}%`;
+            }
+            if(msg.controller == 73) //treb
+            {
+                updateKnob(trebleSlider, msg.value);
+                trebleTxt.innerText = `Treble: ${msg.value}%`;
+            }
+            if(msg.controller == 74)    
+            {
+                updateKnob(volumeSlider, msg.value);
+                volumeTxt.innerText = `Volume: ${msg.value}%`;
+            }
+            if(msg._type == 'program')
+            {
+                presetInput.value = msg.number;
+                document.cookie = `preset=${presetInput.value}`;
+                socket.emit('preset', presetInput.value);
+            }
+            if(msg._type == 'sysex')
+            {
+                parseBytes(msg.bytes);
+            }
         });
     </script>
 </body>

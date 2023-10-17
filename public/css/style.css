@@ -1,62 +1,77 @@
-/* Common styles for both pages */
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
-  
-  h1 {
-    text-align: center;
-    margin: 20px 0;
-  }
-  
-  a {
-    text-decoration: none;
-    color: #007BFF;
-  }
-  
-  a:hover {
-    text-decoration: underline;
-  }
-  
-  /* Styles for the first page with traffic data */
-  .traffic-box {
-    overflow-y: auto;
-    max-height: 60vh;
-    padding: 10px;
-    border: 1px solid #ccc;
-    margin: 10px auto;
-    background-color: #f0f0f0;
-    border-radius: 5px;
-  }
-  
-  .traffic {
-    padding: 5px;
-    border: 1px solid #ddd;
-    background-color: #fff;
-    margin: 5px 0;
-    border-radius: 5px;
-  }
-  
-  .traffic-item {
-    margin: 0;
-  }
-  
-  /* Styles for the second page with the code test */
-  form {
-    text-align: center;
-    margin: 20px auto;
-  }
-  
-  input[type="range"] {
-    width: 80%;
-  }
-  
-  /* Add any additional styling you want for the second page */
-  
-  /* Common styles for both pages */
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+  margin: 20px 0;
+}
+
+a {
+  text-decoration: none;
+  color: #007BFF;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Styles for the container holding the knobs and preset */
+.controls-container {
+  display: flex;
+  align-items: flex-start;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Styles for the first page with traffic data */
+.traffic-box {
+	overflow-y: auto;
+	max-height: 60vh;
+	padding: 10px;
+	border: 1px solid #ccc;
+	margin: 10px auto;
+	background-color: #f0f0f0;
+	border-radius: 5px;
+}
+
+.traffic {
+	padding: 5px;
+	border: 1px solid #ddd;
+	background-color: #fff;
+	margin: 5px 0;
+	border-radius: 5px;
+}
+
+.traffic-item {
+	margin: 0;
+}
+
+ /* Styles for the floating box */
+ .knob-container {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Styles for the knobs */
+.input-knob {
+  width: 100%;
+  margin: 5px 0;
+}
+
+.knob-rotate-animation {
+  transition: transform 0.3s; /* You can adjust the duration and easing to your preference */
+}
+
+
+/* Styles for the preset input */
+.preset-container {
+  text-align: center;
+  margin-left: 15px;
+}
