@@ -44,6 +44,7 @@
 
     </div>
     <a href="/traffic">view traffic</a>
+    <a href="/tuner">tuner</a>
     <br>
     <script>
         //set txt
@@ -208,7 +209,7 @@
             {
                 presetInput.value = msg.number;
                 document.cookie = `preset=${presetInput.value}`;
-                socket.emit('preset', presetInput.value);
+                //socket.emit('preset', presetInput.value);
             }
             if(msg._type == 'sysex')
             {

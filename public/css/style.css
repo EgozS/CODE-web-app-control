@@ -25,6 +25,7 @@ a:hover {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+  
 }
 
 /* Styles for the first page with traffic data */
@@ -57,6 +58,7 @@ a:hover {
   border-radius: 5px;
   padding: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  min-width: 15%;
 }
 
 /* Styles for the knobs */
@@ -69,9 +71,9 @@ a:hover {
   transition: transform 0.3s; /* You can adjust the duration and easing to your preference */
 }
 
-
 /* Styles for the preset input */
 .preset-container {
   text-align: center;
   margin-left: 15px;
 }
+

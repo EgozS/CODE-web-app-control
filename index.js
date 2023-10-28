@@ -37,6 +37,12 @@ function sendControlChange(controlNumber, controlValue, type = 'cc')
 input.on('message', (msg) => {
     console.log(msg);
     io.emit('traffic', msg);
+
+    //todo: fix this, when turning physical or digital knob, it sends a program change message to get the current preset
+    // if (msg._type == 'program') {
+    //     console.log("program change");
+    //     sendControlChange(0,msg.number ,'program');
+    // }
 });
 
 //express routes
@@ -46,6 +52,10 @@ app.get('/', (req, res) => {
 
 app.get('/traffic', (req, res) => {
     res.render('traffic');
+});
+
+app.get('/tuner', (req, res) => {
+    res.render('tuner');
 });
 
 //client socket is senting 'vol' to server
@@ -73,6 +83,13 @@ io.on('connection', (socket) => {
     socket.on('preset', (msg) => {
         console.log("preset set from socket: " + msg);
         sendControlChange(0,msg,'program');
+    });
+    socket.on('tuner', (msg) => {
+        console.log("tuner set from socket: " + msg);
+        sendControlChange(52,msg);
+    });
+    socket.on('disconnect', () => {
+        sendControlChange(52,0);
     });
 });
 

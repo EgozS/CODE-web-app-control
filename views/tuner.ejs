@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tuner</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://g200kg.github.io/input-knobs/input-knobs.js"></script>
+    <script>var socket = io();</script>
+     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding-top: 20px;
+        }
+
+        .controls-container {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin: 0;
+            width: 30%;
+        }
+
+        .knob-container {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin: 0 15px;
+        }
+
+        label {
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        #sStatus {
+            margin-bottom: 20px;
+        }
+
+        .knob-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80%; /* Adjust the width of the container */
+  margin: 0 10%; /* Adjust the margins to center the container */
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  width: 100%; /* Make the container full width */
+}
+
+label#note-left,
+label#note-right {
+  width: 15%;
+  text-align: center;
+}
+
+input[type="range"] {
+  margin: 15px 0; /* Add space around the range input */
+}
+
+label#middle-label {
+  width: 100%; /* Match the width of the container */
+  text-align: center;
+}
+
+        
+    </style>
+</head>
+<body>
+    <h1>Tuner</h1>
+    <a href="/">home</a>
+    <div class="controls-container">
+        <div class="knob-container">
+            <label for="onoff">Tuner On/Off</label>
+            <input type="checkbox" class="input-switch" data-src="../imgs/switch_offon.png" data-diameter="80" name="onoff" id="onoff">
+            <label for="onoff" id="sStatus"></label>
+            <div class="knob-container">
+                <div class="slider-container">
+                    <label for="note" id="note-left"></label>
+                    <input type="range" id="note-range" range="4" step="1" disabled>
+                    <label for="note" id="note-right"></label>
+                </div>
+                <label class="middle-label" id="middle-label"></label>
+            </div>
+            
+        </div>
+    </div>
+<script>
+    const noteText = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+    function getNote(note) 
+    {
+    // Calculate the index of the note name in the noteText array based on MIDI note number
+    var index = note % 12;
+
+    return noteText[index];
+    }
+
+    var noteSlider = document.getElementById('note-range');
+    var noteLeft = document.getElementById('note-left');
+    var noteRight = document.getElementById('note-right');
+    var noteMiddle = document.getElementById('middle-label');
+    var onoff = document.getElementById('onoff');
+    var note = 0;
+    
+    socket.on('traffic', function(msg){
+        if(msg._type == 'poly aftertouch')
+        {
+            note = msg.note;
+            note = getNote(note);
+            noteMiddle.innerText = note;
+            if(note == 'C')
+            {
+                noteLeft.innerText = noteText[noteText.length - 1];
+                noteRight.innerText = noteText[noteText.indexOf(note) + 1];
+            }
+            else if(note == 'B')
+            {
+                noteRight.innerText = noteText[0];
+                noteLeft.innerText = noteText[noteText.indexOf(note) - 1];
+            }
+            else
+            {
+                noteLeft.innerText = noteText[noteText.indexOf(note) - 1];
+                noteRight.innerText = noteText[noteText.indexOf(note) + 1];
+            }
+
+            var pressure = msg.pressure; // Assuming pressure is in the range of 0-4
+            var pressurePercentage = (pressure / 4) * 100;
+
+            // Update the slider with the calculated pressure percentage
+            noteSlider.value = pressurePercentage;
+        }
+        else if (msg._type == 'cc')
+        {
+            if(msg.value == 0)
+            {
+                noteMiddle.innerText = '';
+                noteLeft.innerText = '';
+                noteRight.innerText = '';
+                noteSlider.value = 0;
+                onoff.checked = false;
+            }
+            else if (msg.value == 1)
+            {
+                onoff.checked = true;
+            }
+        }
+    });
+    
+</script>
+<script>
+    var sStatus = document.getElementById('sStatus');
+    var tunerCookie = '';
+
+    onoff.addEventListener('change', function() {
+        if (this.checked) {
+            sStatus.innerText = 'current status: on';
+            socket.emit('tuner', 1);            
+            tunerCookie = 'tuner=on';
+            document.cookie = tunerCookie;
+        } else {
+            sStatus.innerText = 'current status: off';
+            socket.emit('tuner', 0);
+            tunerCookie = 'tuner=off';
+            document.cookie = tunerCookie;
+        }
+    });
+</script>
+<script>
+    onload = function() {
+      //check if cookie exists
+        if(document.cookie)
+        {
+            //split cookie into array
+            var cookieArray = document.cookie.split('; ');
+            for(var i = 0; i < cookieArray.length; i++)
+            {
+                var cookieItem = cookieArray[i].split('=');
+                //check if key is tuner
+                if(cookieItem[0] == 'tuner')
+                {
+                    //check if value is on
+                    if(cookieItem[1] == 'on')
+                    {
+                        onoff.checked = true;
+                        sStatus.innerText = 'current status: on';
+                        socket.emit('tuner', 1);
+                    }
+                    else
+                    {
+                        onoff.checked = false;
+                        sStatus.innerText = 'current status: off';
+                        socket.emit('tuner', 0);
+                    }
+                }
+            }
+        }
+    }
+</script>
+</body>
+</html>
